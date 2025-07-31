@@ -576,6 +576,29 @@
         csv_form += `ScreenHeight,${screenHeight}\n`;
         csv_form += `PixelDensity,${pixelDensity}\n`;
 
+        // Combine both CSV strings into one payload
+        const payload = {
+          timestamp: new Date().toISOString(),
+          resultsCSV: csv_results,
+          formCSV: csv_form.join('')  // join array into a single string
+        };
+
+        // Send to your Cloud Function
+        fetch('https://uploadcsv-327367429339.us-central1.run.app', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        })
+        .then(response => {
+          if (response.ok) {
+            console.log('Data successfully sent');
+          } else {
+            console.error('Failed to send data');
+          }
+        })
+        .catch(error => {
+          console.error('Error sending data:', error);
+        });
 
         // const blob_form = new Blob([csv_form], { type: 'text/csv' });
         // const url = URL.createObjectURL(blob_form);
@@ -591,31 +614,6 @@
         // a_results.download = 'experiment_results.csv';
         // a_results.click();
         // URL.revokeObjectURL(url_results);
-
-        
-        fetch('https://uploadcsv-327367429339.us-central1.run.app', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            filename: `participant_${Date.now()}.csv`,
-            content: csv_results
-          })
-        })
-        .then(response => response.text())
-        .then(data => console.log('Upload success:', data))
-        .catch(error => console.error('Upload error:', error));
-
-        fetch('https://uploadcsv-327367429339.us-central1.run.app', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            filename: `participant_${Date.now()}.csv`,
-            content: csv_form
-          })
-        })
-        .then(response => response.text())
-        .then(data => console.log('Upload success:', data))
-        .catch(error => console.error('Upload error:', error));
 
       } else {
         alert('Please fill out all required fields before submitting.');
