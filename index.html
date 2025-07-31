@@ -50,10 +50,6 @@
       height: auto;
     }
 
-    .img.hidden {
-      display: none;
-    }
-
     #task {
       font-size: 24px;
       margin-top: 20px;
@@ -363,35 +359,17 @@
     }
 
     function loadTrial(pair) {
-    // Add noise image
-      imageA.src = '';
-      imageB.src = '';
-      boxA.classList.remove('selected');
-      boxB.classList.remove('selected');
-
-
-      const noise = document.getElementById('noiseImage');
-      noise.style.display = 'block';
-
-    // Wait 1 second, then hide noise and load images
-      setTimeout(() => {
-        hideNoiseAndLoadImages(pair);
-      }, 1000);
-    }
-
-    function hideNoiseAndLoadImages(pair) {
-
       boxA.classList.add('hidden');
       boxB.classList.add('hidden');
-      setTimeout(() => {
-        boxA.classList.remove('hidden');
-        boxB.classList.remove('hidden');
-      }, 10);
       boxA.classList.remove('selected');
       boxB.classList.remove('selected');
       selected = null;
       const flip = Math.random() < 0.5;
       const [img1, img2] = flip ? [pair[1], pair[0]] : [pair[0], pair[1]];
+      // Hide images initially
+      imageA.classList.remove('hidden');
+      imageB.classList.remove('hidden');
+
       imageA.src = `images/modified_${img1}W.png`;
       imageB.src = `images/modified_${img2}W.png`;
       imageA.dataset.label = flip ? 'B' : 'A';
@@ -399,8 +377,6 @@
       imageA.dataset.name = img1;
       imageB.dataset.name = img2;
       trialCount.textContent = `${isTraining ? 'Training' : ''} Trial ${(currentTrial + 1) + currentBatch * trials_per_batch} of ${isTraining ? trainingPairs.length : trials_per_batch * n_batches}: Use arrows to select A or B, then press space to confirm.`;
-      const noise = document.getElementById('noiseImage');
-      noise.style.display = 'none';
       startTime = performance.now();
     }
 
@@ -426,14 +402,14 @@
     function nextTrial() {
       currentTrial++;
       if (isTraining && currentTrial < trainingPairs.length) {
-        loadTrial(trainingPairs[currentTrial]);
+        showNoiseImage(() => loadTrial(trainingPairs[currentTrial]));
       } else if (isTraining) {
         isTraining = false;
         currentTrial = 0;
         shuffle(pairs);
-        loadTrial(pairs[currentTrial]);
+        showNoiseImage(() => loadTrial(pairs[currentTrial]));
       } else if (currentTrial < trials_per_batch) {
-        loadTrial(pairs[currentTrial]);
+        showNoiseImage(() => loadTrial(pairs[currentTrial]));
       } else {
         currentBatch++;
         if (currentBatch < n_batches) {
@@ -462,23 +438,23 @@
     }
 
 
-    // function showNoiseImage(callback) {
-    //   // Clear previous images to prevent flicker
-    //   imageA.src = '';
-    //   imageB.src = '';
-    //   boxA.classList.remove('selected');
-    //   boxB.classList.remove('selected');
+    function showNoiseImage(callback) {
+      // Clear previous images to prevent flicker
+      imageA.src = '';
+      imageB.src = '';
+      boxA.classList.remove('selected');
+      boxB.classList.remove('selected');
 
-    //   // Show noise image full screen
-    //   const noise = document.getElementById('noiseImage');
-    //   noise.style.display = 'block';
+      // Show noise image full screen
+      const noise = document.getElementById('noiseImage');
+      noise.style.display = 'block';
 
-    //   // Wait 1 second, then hide noise and run callback
-    //   setTimeout(() => {
-    //     noise.style.display = 'none';
-    //     if (callback) callback(); // Load next trial only after noise is hidden
-    //   }, 1000);
-    // }
+      // Wait 1 second, then hide noise and run callback
+      setTimeout(() => {
+        noise.style.display = 'none';
+        if (callback) callback(); // Load next trial only after noise is hidden
+      }, 1000);
+    }
 
 
     document.addEventListener('keydown', (e) => {
@@ -501,7 +477,7 @@
       } else if (e.key === ' ' && currentSelection && breakScreen.style.display !== 'block') {
         recordSelection(currentSelection);
         currentSelection = null; // Reset selection
-        nextTrial();
+        showNoiseImage(() => nextTrial());
       }
     });
 
@@ -601,36 +577,45 @@
         csv_form += `PixelDensity,${pixelDensity}\n`;
 
 
-        const blob_form = new Blob([csv_form], { type: 'text/csv' });
-        const url = URL.createObjectURL(blob_form);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'experiment_survey.csv';
-        a.click();
-        URL.revokeObjectURL(url);
-        const blob_results = new Blob([csv_results], { type: 'text/csv' });
-        const url_results = URL.createObjectURL(blob_results);
-        const a_results = document.createElement('a');
-        a_results.href = url_results;
-        a_results.download = 'experiment_results.csv';
-        a_results.click();
-        URL.revokeObjectURL(url_results);
+        // const blob_form = new Blob([csv_form], { type: 'text/csv' });
+        // const url = URL.createObjectURL(blob_form);
+        // const a = document.createElement('a');
+        // a.href = url;
+        // a.download = 'experiment_survey.csv';
+        // a.click();
+        // URL.revokeObjectURL(url);
+        // const blob_results = new Blob([csv_results], { type: 'text/csv' });
+        // const url_results = URL.createObjectURL(blob_results);
+        // const a_results = document.createElement('a');
+        // a_results.href = url_results;
+        // a_results.download = 'experiment_results.csv';
+        // a_results.click();
+        // URL.revokeObjectURL(url_results);
 
-        // const csvContent = csv_results + '\n' + csv_form.join('');
-        // const filename = `participant_${Date.now()}.csv`;
+        
+        fetch('https://uploadcsv-327367429339.us-central1.run.app', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            filename: `participant_${Date.now()}.csv`,
+            content: csv_results
+          })
+        })
+        .then(response => response.text())
+        .then(data => console.log('Upload success:', data))
+        .catch(error => console.error('Upload error:', error));
 
-        // fetch('YOUR_CLOUD_FUNCTION_URL', {
-        //   method: 'POST',
-        //   headers: { 'Content-Type': 'application/json' },
-        //   body: JSON.stringify({
-        //     filename: filename,
-        //     content: csvContent
-        //   })
-        // })
-        // .then(response => response.text())
-        // .then(data => console.log('Upload success:', data))
-        // .catch(error => console.error('Upload error:', error));
-
+        fetch('https://uploadcsv-327367429339.us-central1.run.app', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            filename: `participant_demographic_${Date.now()}.csv`,
+            content: csv_form
+          })
+        })
+        .then(response => response.text())
+        .then(data => console.log('Upload success:', data))
+        .catch(error => console.error('Upload error:', error));
 
       } else {
         alert('Please fill out all required fields before submitting.');
