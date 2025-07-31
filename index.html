@@ -50,6 +50,10 @@
       height: auto;
     }
 
+    .img.hidden {
+      display: none;
+    }
+
     #task {
       font-size: 24px;
       margin-top: 20px;
@@ -359,7 +363,24 @@
     }
 
     function loadTrial(pair) {
-      // Set a small delay to avoid flickering
+    // Add noise image
+      imageA.src = '';
+      imageB.src = '';
+      boxA.classList.remove('selected');
+      boxB.classList.remove('selected');
+
+
+      const noise = document.getElementById('noiseImage');
+      noise.style.display = 'block';
+
+    // Wait 1 second, then hide noise and load images
+      setTimeout(() => {
+        hideNoiseAndLoadImages(pair);
+      }, 1000);
+    }
+
+    function hideNoiseAndLoadImages(pair) {
+
       boxA.classList.add('hidden');
       boxB.classList.add('hidden');
       setTimeout(() => {
@@ -378,6 +399,8 @@
       imageA.dataset.name = img1;
       imageB.dataset.name = img2;
       trialCount.textContent = `${isTraining ? 'Training' : ''} Trial ${(currentTrial + 1) + currentBatch * trials_per_batch} of ${isTraining ? trainingPairs.length : trials_per_batch * n_batches}: Use arrows to select A or B, then press space to confirm.`;
+      const noise = document.getElementById('noiseImage');
+      noise.style.display = 'none';
       startTime = performance.now();
     }
 
@@ -403,14 +426,14 @@
     function nextTrial() {
       currentTrial++;
       if (isTraining && currentTrial < trainingPairs.length) {
-        showNoiseImage(() => loadTrial(trainingPairs[currentTrial]));
+        loadTrial(trainingPairs[currentTrial]);
       } else if (isTraining) {
         isTraining = false;
         currentTrial = 0;
         shuffle(pairs);
-        showNoiseImage(() => loadTrial(pairs[currentTrial]));
+        loadTrial(pairs[currentTrial]);
       } else if (currentTrial < trials_per_batch) {
-        showNoiseImage(() => loadTrial(pairs[currentTrial]));
+        loadTrial(pairs[currentTrial]);
       } else {
         currentBatch++;
         if (currentBatch < n_batches) {
@@ -439,23 +462,23 @@
     }
 
 
-    function showNoiseImage(callback) {
-      // Clear previous images to prevent flicker
-      imageA.src = '';
-      imageB.src = '';
-      boxA.classList.remove('selected');
-      boxB.classList.remove('selected');
+    // function showNoiseImage(callback) {
+    //   // Clear previous images to prevent flicker
+    //   imageA.src = '';
+    //   imageB.src = '';
+    //   boxA.classList.remove('selected');
+    //   boxB.classList.remove('selected');
 
-      // Show noise image full screen
-      const noise = document.getElementById('noiseImage');
-      noise.style.display = 'block';
+    //   // Show noise image full screen
+    //   const noise = document.getElementById('noiseImage');
+    //   noise.style.display = 'block';
 
-      // Wait 1 second, then hide noise and run callback
-      setTimeout(() => {
-        noise.style.display = 'none';
-        if (callback) callback(); // Load next trial only after noise is hidden
-      }, 1000);
-    }
+    //   // Wait 1 second, then hide noise and run callback
+    //   setTimeout(() => {
+    //     noise.style.display = 'none';
+    //     if (callback) callback(); // Load next trial only after noise is hidden
+    //   }, 1000);
+    // }
 
 
     document.addEventListener('keydown', (e) => {
@@ -478,7 +501,7 @@
       } else if (e.key === ' ' && currentSelection && breakScreen.style.display !== 'block') {
         recordSelection(currentSelection);
         currentSelection = null; // Reset selection
-        showNoiseImage(() => nextTrial());
+        nextTrial();
       }
     });
 
