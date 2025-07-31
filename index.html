@@ -359,16 +359,16 @@
     }
 
     function loadTrial(pair) {
-      boxA.classList.add('hidden');
-      boxB.classList.add('hidden');
+      // boxA.classList.add('hidden');
+      // boxB.classList.add('hidden');
       boxA.classList.remove('selected');
       boxB.classList.remove('selected');
       selected = null;
       const flip = Math.random() < 0.5;
       const [img1, img2] = flip ? [pair[1], pair[0]] : [pair[0], pair[1]];
       // Hide images initially
-      imageA.classList.remove('hidden');
-      imageB.classList.remove('hidden');
+      // imageA.classList.remove('hidden');
+      // imageB.classList.remove('hidden');
 
       imageA.src = `images/modified_${img1}W.png`;
       imageB.src = `images/modified_${img2}W.png`;
@@ -609,7 +609,7 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            filename: `participant_demographic_${Date.now()}.csv`,
+            filename: `participant_${Date.now()}.csv`,
             content: csv_form
           })
         })
