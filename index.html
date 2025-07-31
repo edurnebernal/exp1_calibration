@@ -580,7 +580,7 @@
         const payload = {
           timestamp: new Date().toISOString(),
           resultsCSV: csv_results,
-          formCSV: csv_form.join('')  // join array into a single string
+          formCSV: csv_form  // join array into a single string
         };
 
         // Send to your Cloud Function
