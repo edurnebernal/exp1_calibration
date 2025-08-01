@@ -290,6 +290,8 @@
       console.log(`Prolific ID: ${prolificId}`);
     } else {
       console.error('Prolific ID not found in URL');
+      // set a default ID or handle the error
+      prolificId = '404Default'; // Replace with a default ID or handle as needed
     }
 
     const trainingPairs = [
