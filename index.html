@@ -284,6 +284,14 @@
 
 
   <script>
+    // Store prolific ID 
+    const prolificId = new URLSearchParams(window.location.search).get('PROLIFIC_PID');
+    if (prolificId) {
+      console.log(`Prolific ID: ${prolificId}`);
+    } else {
+      console.error('Prolific ID not found in URL');
+    }
+
     const trainingPairs = [
       ['sunset_18', 'sunset_12'],
       ['night_12', 'night_14'],
@@ -511,9 +519,9 @@
         form.style.display = 'none'; // Hide the form after submission
         finishBtn.style.display = 'none'; // Hide finish button
         // Store results of experiment and survey
-        let csv_results = 'batch,trial,imageA,imageB,Aselected,reactionTime\n';
+        let csv_results = 'id,batch,trial,imageA,imageB,Aselected,reactionTime\n';
         results.forEach(r => {
-          csv_results += `${r.batch},${r.trial},${r.imageA},${r.imageB},${r.Aselected},${r.reactionTime}\n`;
+          csv_results += `${prolificId},${r.batch},${r.trial},${r.imageA},${r.imageB},${r.Aselected},${r.reactionTime}\n`;
         });
 
         event.preventDefault();  // Prevent form reload
