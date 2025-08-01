@@ -303,23 +303,17 @@
       console.log(`Prolific ID: ${prolificId}`);
     } else {
       console.error('Prolific ID not found in URL');
-      // set a default ID or handle the error
-      prolificId = '404Default'; // Replace with a default ID or handle as needed
     }
 
     if (studyId) {
       console.log(`Study ID: ${studyId}`);
     } else {
       console.error('Study ID not found in URL');
-      // set a default ID or handle the error
-      studyId = '404Default'; // Replace with a default ID or handle as needed
     }
     if (sessionId) {
       console.log(`Session ID: ${sessionId}`);
     } else {
       console.error('Session ID not found in URL');
-      // set a default ID or handle the error
-      sessionId = '404Default'; // Replace with a default ID or handle as needed
     }
 
     const trainingPairs = [
@@ -359,7 +353,7 @@
     }
 
     const n_batches = 5;
-    const trials_per_batch = pairs.length; 
+    const trials_per_batch = pairs.length;
     let currentTrial = 0;
     let currentBatch = 0;
     let isTraining = true;
@@ -378,11 +372,8 @@
     for (const path in images) {
       const fileName = images[path].split('/').pop().replace('W.png', '').replace('modified_', '');
       const img = new Image();
-      // print image path to console
-      console.log(`Loading image: ${images[path]}`);
       img.src = images[path];
       img.name = fileName;
-      console.log(`Image name: ${fileName}`);
       imageMap[fileName] = img;
     }
 
