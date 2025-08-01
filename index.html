@@ -156,6 +156,13 @@
       </select>
       <input id="otherGender" type="text" name="otherGender" placeholder="If not listed, specify" style="display:none;" />
 
+      <script>
+        function toggleOtherGender(select) {
+          const otherInput = document.getElementById('otherGender');
+          otherInput.style.display = select.value === 'Other' ? 'block' : 'none';
+        }
+      </script>
+
       <h4>Do you have any vision condition or disorder (e.g., myopia, presbyopia, etc.)? <span>*</span></h4>
       <div id="visualAcy" class="question-answer">
         <select name="visionCondition" id="visionCondition" required onchange="toggleOtherInput(this)">
@@ -352,7 +359,7 @@
     }
 
     const n_batches = 5;
-    const trials_per_batch = 2; 
+    const trials_per_batch = pairs.length; 
     let currentTrial = 0;
     let currentBatch = 0;
     let isTraining = true;
