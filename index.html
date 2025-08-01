@@ -285,13 +285,34 @@
 
   <script>
     // Store prolific ID 
-    const prolificId = new URLSearchParams(window.location.search).get('PROLIFIC_PID');
+    
+    const urlParams = new URLSearchParams(window.location.search);
+
+    const prolificId = urlParams.get('PROLIFIC_PID');
+    const studyId = urlParams.get('STUDY_ID');
+    const sessionId = urlParams.get('SESSION_ID');
+
     if (prolificId) {
       console.log(`Prolific ID: ${prolificId}`);
     } else {
       console.error('Prolific ID not found in URL');
       // set a default ID or handle the error
       prolificId = '404Default'; // Replace with a default ID or handle as needed
+    }
+
+    if (studyId) {
+      console.log(`Study ID: ${studyId}`);
+    } else {
+      console.error('Study ID not found in URL');
+      // set a default ID or handle the error
+      studyId = '404Default'; // Replace with a default ID or handle as needed
+    }
+    if (sessionId) {
+      console.log(`Session ID: ${sessionId}`);
+    } else {
+      console.error('Session ID not found in URL');
+      // set a default ID or handle the error
+      sessionId = '404Default'; // Replace with a default ID or handle as needed
     }
 
     const trainingPairs = [
@@ -521,9 +542,9 @@
         form.style.display = 'none'; // Hide the form after submission
         finishBtn.style.display = 'none'; // Hide finish button
         // Store results of experiment and survey
-        let csv_results = 'id,batch,trial,imageA,imageB,Aselected,reactionTime\n';
+        let csv_results = 'id,batch,trial,imageA,imageB,Aselected,reactionTime,study,session\n';
         results.forEach(r => {
-          csv_results += `${prolificId},${r.batch},${r.trial},${r.imageA},${r.imageB},${r.Aselected},${r.reactionTime}\n`;
+          csv_results += `${prolificId},${r.batch},${r.trial},${r.imageA},${r.imageB},${r.Aselected},${r.reactionTime},${studyId},${sessionId}\n`;
         });
 
         event.preventDefault();  // Prevent form reload
