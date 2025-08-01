@@ -329,6 +329,26 @@
     let startTime = 0;
     let results = [];
 
+    const images = [];
+    categories.forEach(cat => {
+      levels.forEach(level => {
+        images.push(`./images/modified_${cat}_${level}W.png`);
+      });
+    });
+    
+    const imageMap = {};
+    for (const path in images) {
+      const fileName = images[path].split('/').pop().replace('W.png', '').replace('modified_', '');
+      const img = new Image();
+      // print image path to console
+      console.log(`Loading image: ${images[path]}`);
+      img.src = images[path];
+      img.name = fileName;
+      console.log(`Image name: ${fileName}`);
+      imageMap[fileName] = img;
+    }
+
+
     const imageA = document.querySelector('#imageA img');
     const imageB = document.querySelector('#imageB img');
     const boxA = document.getElementById('imageA');
@@ -365,17 +385,17 @@
       boxB.classList.remove('selected');
       selected = null;
       const flip = Math.random() < 0.5;
-      const [img1, img2] = flip ? [pair[1], pair[0]] : [pair[0], pair[1]];
+      const [img1, img2] = flip ? [imageMap[pair[1]], imageMap[pair[0]]] : [imageMap[pair[0]], imageMap[pair[1]]];
       // Hide images initially
       // imageA.classList.remove('hidden');
       // imageB.classList.remove('hidden');
 
-      imageA.src = `images/modified_${img1}W.png`;
-      imageB.src = `images/modified_${img2}W.png`;
+      imageA.src = img1.src;
+      imageB.src = img2.src;
       imageA.dataset.label = flip ? 'B' : 'A';
       imageB.dataset.label = flip ? 'A' : 'B';
-      imageA.dataset.name = img1;
-      imageB.dataset.name = img2;
+      imageA.dataset.name = img1.name;
+      imageB.dataset.name = img2.name;
       trialCount.textContent = `${isTraining ? 'Training' : ''} Trial ${(currentTrial + 1) + currentBatch * trials_per_batch} of ${isTraining ? trainingPairs.length : trials_per_batch * n_batches}: Use arrows to select A or B, then press space to confirm.`;
       startTime = performance.now();
     }
@@ -580,7 +600,7 @@
         const payload = {
           timestamp: new Date().toISOString(),
           resultsCSV: csv_results,
-          formCSV: csv_form  // join array into a single string
+          formCSV: csv_form
         };
 
         // Send to your Cloud Function
@@ -599,21 +619,6 @@
         .catch(error => {
           console.error('Error sending data:', error);
         });
-
-        // const blob_form = new Blob([csv_form], { type: 'text/csv' });
-        // const url = URL.createObjectURL(blob_form);
-        // const a = document.createElement('a');
-        // a.href = url;
-        // a.download = 'experiment_survey.csv';
-        // a.click();
-        // URL.revokeObjectURL(url);
-        // const blob_results = new Blob([csv_results], { type: 'text/csv' });
-        // const url_results = URL.createObjectURL(blob_results);
-        // const a_results = document.createElement('a');
-        // a_results.href = url_results;
-        // a_results.download = 'experiment_results.csv';
-        // a_results.click();
-        // URL.revokeObjectURL(url_results);
 
       } else {
         alert('Please fill out all required fields before submitting.');
